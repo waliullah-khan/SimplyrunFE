@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown Debug - GHL AI Assistant</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: 600;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .test-area {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .markdown-preview {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #667eea;
+            margin-top: 10px;
+        }
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        .markdown-body h2 {
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 8px;
+        }
+        .markdown-body ul {
+            list-style-type: disc;
+            padding-left: 24px;
+        }
+        .markdown-body strong {
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Markdown Debug Tool</h1>
+        <p>This page tests if the marked library is loading correctly on your deployment.</p>
+
+        <div id="libraryStatus"></div>
+        <div id="versionInfo"></div>
+    </div>
+
+    <div class="container">
+        <h2>📝 Test Markdown Parsing</h2>
+        <div class="test-area">
+            <h3>Sample Markdown (Your n8n Response Format)</h3>
+            <pre id="sampleMarkdown">Perfect! I've successfully created a new contact named "Wali" in the CRM with the phone number 7654097547.
+
+The contact has been created with the following details:
+
+- **Contact ID**: JEPHASvwnrOk33hM69gv
+- **Name**: Wali
+- **Phone**: +7654097547
+- **Location**: MVb1qbHwHl6hJaecJsX1
+- **Status**: Lead
+- **Date Added**: October 28, 2025
+
+## Next Steps
+
+The contact is now ready to be used for:
+1. Tasks and appointments
+2. Workflows
+3. Any other CRM activities
+
+Would you like me to help with anything else for Wali?</pre>
+
+            <button onclick="testMarkdown()">🧪 Test Markdown Rendering</button>
+
+            <div id="renderResult" style="margin-top: 20px;"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>🛠️ How to Fix Issues</h2>
+        <div style="line-height: 1.8;">
+            <p><strong>If marked library is NOT loaded:</strong></p>
+            <ul>
+                <li>Check your internet connection</li>
+                <li>Verify CDN is accessible: <a href="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js" target="_blank">Test CDN Link</a></li>
+                <li>Check browser console for errors</li>
+                <li>Try clearing cache and hard refresh (Ctrl+Shift+R)</li>
+            </ul>
+
+            <p><strong>If rendering fails:</strong></p>
+            <ul>
+                <li>Open browser developer console (F12)</li>
+                <li>Look for JavaScript errors</li>
+                <li>Check network tab for failed requests</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+    <script>
+        // Check if marked library loaded
+        window.addEventListener('load', () => {
+            const statusDiv = document.getElementById('libraryStatus');
+            const versionDiv = document.getElementById('versionInfo');
+
+            if (typeof marked !== 'undefined') {
+                statusDiv.innerHTML = '<div class="status success">✅ Marked library loaded successfully!</div>';
+
+                let version = 'unknown';
+                if (marked.VERSION) {
+                    version = marked.VERSION;
+                } else if (marked.parse) {
+                    version = 'parse() available';
+                } else if (typeof marked === 'function') {
+                    version = 'function available';
+                }
+
+                versionDiv.innerHTML = `<div class="status success">📦 Version: ${version}</div>`;
+
+                console.log('Marked object:', marked);
+                console.log('Marked type:', typeof marked);
+                console.log('Has parse method:', typeof marked.parse);
+                console.log('Has setOptions:', typeof marked.setOptions);
+            } else {
+                statusDiv.innerHTML = '<div class="status error">❌ Marked library NOT loaded! Markdown rendering will not work.</div>';
+                versionDiv.innerHTML = '<div class="status error">⚠️ Please check CDN connectivity</div>';
+            }
+        });
+
+        function testMarkdown() {
+            const resultDiv = document.getElementById('renderResult');
+            const sampleText = document.getElementById('sampleMarkdown').textContent;
+
+            try {
+                if (typeof marked === 'undefined') {
+                    resultDiv.innerHTML = '<div class="status error">❌ Cannot test: Marked library not loaded</div>';
+                    return;
+                }
+
+                // Configure marked
+                if (typeof marked.setOptions === 'function') {
+                    marked.setOptions({
+                        breaks: true,
+                        gfm: true,
+                        headerIds: false,
+                        mangle: false
+                    });
+                }
+
+                // Parse markdown
+                let html;
+                if (typeof marked.parse === 'function') {
+                    html = marked.parse(sampleText);
+                    console.log('Used marked.parse()');
+                } else if (typeof marked === 'function') {
+                    html = marked(sampleText);
+                    console.log('Used marked()');
+                } else {
+                    throw new Error('No valid parsing function found');
+                }
+
+                console.log('Parsed HTML:', html);
+
+                resultDiv.innerHTML = `
+                    <div class="status success">✅ Markdown parsed successfully!</div>
+                    <h3>Rendered Output:</h3>
+                    <div class="markdown-preview markdown-body">${html}</div>
+                `;
+
+            } catch (error) {
+                console.error('Markdown parsing error:', error);
+                resultDiv.innerHTML = `
+                    <div class="status error">❌ Error parsing markdown: ${error.message}</div>
+                    <p>Check the browser console for more details.</p>
+                `;
+            }
+        }
+
+        // Auto-test on page load
+        window.addEventListener('load', () => {
+            setTimeout(testMarkdown, 500);
+        });
+    </script>
+</body>
+</html>

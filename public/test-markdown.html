@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown Test - GHL AI Assistant</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body {
+            padding: 20px;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-message {
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+
+    <div class="test-container">
+        <h1 style="color: white; text-align: center; margin-bottom: 30px;">Markdown Formatting Test</h1>
+
+        <div class="test-message">
+            <h2 style="margin-top: 0;">Example Response (Raw Markdown)</h2>
+            <pre style="background: #f5f5f5; padding: 15px; border-radius: 8px; overflow-x: auto; font-size: 12px;">I found multiple contacts with the name "Lachlan" in your system. Here's a summary of all the Lachlan contacts:
+
+## Lachlan Contacts Found:
+
+1. **Lachlan** (ID: 75b27iDdCblEgD95IDwF)
+   - Phone: +61413843672
+   - Type: Lead
+   - Added: September 17, 2025
+   - Assigned to: gqtmXYLeuVkY0102NelV
+
+2. **Lachlan Bird** (ID: Q9gDod9bVgmNuiF9GSFn)
+   - Phone: +61431619341
+   - Type: Lead
+   - Added: September 3, 2025
+   - Assigned to: gqtmXYLeuVkY0102NelV
+
+3. **Lachlan** (ID: SrO8KAvSmzjA0w2vEETG)
+   - Phone: +61732793300
+   - State: Brisbane
+   - Type: Lead
+   - Added: June 6, 2025
+   - Note: SMS blocked (landline number)
+
+The most active and detailed contact appears to be **Lachlan Bode** (ID: htNLpGuM0uz4VSko2Xfk).
+
+Would you like me to get more detailed information about any specific Lachlan contact?</pre>
+        </div>
+
+        <div class="test-message">
+            <h2 style="margin-top: 0;">Rendered with Markdown</h2>
+            <div class="message bot">
+                <div class="message-content markdown-body" id="renderedMarkdown">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <div class="test-message">
+            <h2 style="margin-top: 0;">Additional Markdown Examples</h2>
+            <div class="message bot">
+                <div class="message-content markdown-body" id="additionalExamples">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+    <script>
+        // Create particles only if container exists
+        const particlesContainer = document.getElementById('particles');
+        if (particlesContainer) {
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Configure marked
+        marked.setOptions({
+            breaks: true,
+            gfm: true,
+            headerIds: false,
+            mangle: false
+        });
+
+        // Sample markdown from your n8n response
+        const sampleMarkdown = `I found multiple contacts with the name "Lachlan" in your system. Here's a summary of all the Lachlan contacts:
+
+## Lachlan Contacts Found:
+
+1. **Lachlan** (ID: 75b27iDdCblEgD95IDwF)
+   - Phone: +61413843672
+   - Type: Lead
+   - Added: September 17, 2025
+   - Assigned to: gqtmXYLeuVkY0102NelV
+
+2. **Lachlan Bird** (ID: Q9gDod9bVgmNuiF9GSFn)
+   - Phone: +61431619341
+   - Type: Lead
+   - Added: September 3, 2025
+   - Assigned to: gqtmXYLeuVkY0102NelV
+
+3. **Lachlan** (ID: SrO8KAvSmzjA0w2vEETG)
+   - Phone: +61732793300
+   - State: Brisbane
+   - Type: Lead
+   - Added: June 6, 2025
+   - Note: SMS blocked (landline number)
+
+The most active and detailed contact appears to be **Lachlan Bode** (ID: htNLpGuM0uz4VSko2Xfk).
+
+Would you like me to get more detailed information about any specific Lachlan contact?`;
+
+        // More comprehensive markdown examples
+        const additionalExamples = `# Comprehensive Markdown Test
+
+## Text Formatting
+
+This is **bold text**, this is *italic text*, and this is ***bold and italic***.
+
+You can also use \`inline code\` for technical terms.
+
+## Lists
+
+### Unordered List
+- Item 1
+- Item 2
+  - Nested item 2.1
+  - Nested item 2.2
+- Item 3
+
+### Ordered List
+1. First item
+2. Second item
+3. Third item
+
+## Links and Code
+
+Visit [our website](https://example.com) for more information.
+
+\`\`\`javascript
+function greet(name) {
+    console.log("Hello, " + name);
+}
+\`\`\`
+
+## Tables
+
+| Name | Phone | Status |
+|------|-------|--------|
+| John | +1234 | Active |
+| Jane | +5678 | Lead |
+
+## Blockquote
+
+> This is a blockquote example.
+> It can span multiple lines.
+
+---
+
+That's all the markdown features!`;
+
+        // Render markdown
+        document.getElementById('renderedMarkdown').innerHTML = marked.parse(sampleMarkdown);
+        document.getElementById('additionalExamples').innerHTML = marked.parse(additionalExamples);
+    </script>
+</body>
+</html>

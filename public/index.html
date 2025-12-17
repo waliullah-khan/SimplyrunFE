@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NXAI - AI Assistant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css?v=7">
+</head>
+<body>
+    <!-- Animated gradient background blobs -->
+    <div class="gradient-bg">
+        <div class="gradient-blob gradient-blob-1"></div>
+        <div class="gradient-blob gradient-blob-2"></div>
+        <div class="gradient-blob gradient-blob-3"></div>
+    </div>
+
+    <!-- Mouse follower gradient (appears on input focus) -->
+    <div class="mouse-follower" id="mouseFollower"></div>
+
+    <!-- Password Protection Overlay -->
+    <div class="password-overlay" id="passwordOverlay">
+        <div class="password-popup">
+            <div class="password-header">
+                <h2 class="password-title">Access Required</h2>
+                <p class="password-subtitle">Please enter the password to continue</p>
+            </div>
+            <div class="password-form">
+                <input type="password" id="passwordInput" class="password-input" placeholder="Enter password" autocomplete="off">
+                <button id="passwordSubmit" class="password-submit-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                    Continue
+                </button>
+            </div>
+            <div class="password-error" id="passwordError" style="display: none;">
+                Incorrect password. Please try again.
+            </div>
+        </div>
+    </div>
+
+    <!-- User Selection Onboarding Popup -->
+    <div class="user-selection-overlay" id="userSelectionOverlay">
+        <div class="user-selection-popup">
+            <div class="user-selection-header">
+                <h2 class="user-selection-title">Welcome!</h2>
+                <p class="user-selection-subtitle">Select your profile to get started</p>
+            </div>
+            <div class="user-selection-loading" id="userSelectionLoading">
+                <div class="user-selection-spinner"></div>
+                <p class="user-selection-loading-text">Loading users...</p>
+            </div>
+            <div class="user-cards-container" id="userCardsContainer" style="display: none;">
+                <!-- User cards will be populated here by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Container with Sidebar Layout -->
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <!-- Brand -->
+            <div class="sidebar-brand">
+                <div class="brand-logo">
+                    <span class="brand-icon">N</span>
+                </div>
+                <div class="brand-text">
+                    <h1 class="brand-name">NXAI</h1>
+                    <span class="brand-version">PRO v2.0</span>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="sidebar-nav">
+                <div class="nav-label">Modules</div>
+                <button class="nav-item active" data-tab="chat" id="navChat">
+                    <div class="nav-indicator"></div>
+                    <span class="nav-icon">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                        </svg>
+                    </span>
+                    <span class="nav-label-text">Neural Chat</span>
+                </button>
+                <!-- Thumbnails module hidden from interface but kept in code -->
+                <!-- <button class="nav-item" data-tab="thumbnails" id="navThumbnails" style="display: none;">
+                    <div class="nav-indicator"></div>
+                    <span class="nav-icon">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </span>
+                    <span class="nav-label-text">Thumbnails</span>
+                </button> -->
+                <button class="nav-item" data-tab="media" id="navMedia">
+                    <div class="nav-indicator"></div>
+                    <span class="nav-icon">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                    </span>
+                    <span class="nav-label-text">Media Studio</span>
+                </button>
+                <button class="nav-item" data-tab="blogs" id="navBlogs">
+                    <div class="nav-indicator"></div>
+                    <span class="nav-icon">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                        </svg>
+                    </span>
+                    <span class="nav-label-text">Blog Studio</span>
+                </button>
+                <button class="nav-item" data-tab="analytics" id="navAnalytics">
+                    <div class="nav-indicator"></div>
+                    <span class="nav-icon">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                    </span>
+                    <span class="nav-label-text">Analytics</span>
+                </button>
+            </nav>
+
+            <!-- User Section -->
+            <div class="sidebar-user" id="sidebarUser">
+                <div class="user-avatar">
+                    <span class="user-initials" id="userInitials">--</span>
+                </div>
+                <div class="user-info">
+                    <div class="user-name" id="sidebarUserName">Select User</div>
+                    <div class="user-status">
+                        <span class="status-dot"></span>
+                        SYSTEM ONLINE
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Mobile Header (shown only on mobile) -->
+        <header class="mobile-header" id="mobileHeader">
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+            <div class="mobile-brand">
+                <span class="mobile-brand-icon">N</span>
+                <span class="mobile-brand-name">NXAI</span>
+            </div>
+            <div class="mobile-tab-indicator" id="mobileTabIndicator">Chat</div>
+        </header>
+
+        <!-- Mobile Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <div class="content-wrapper">
+                <!-- ========== CHAT MODULE ========== -->
+                <div class="module-panel active" id="chatModule" data-module="chat">
+                    <div class="module-content chat-module">
+                        <!-- Left Floating Video Ideas -->
+                        <div class="video-ideas-floating video-ideas-left">
+                            <button class="video-idea-btn" data-video-prompt="Create a 20-30 second video sharing one useful tip for customers of a [business type] business. The tip must be practical, simple, and relevant to everyday customer needs. Make it engaging and actionable." title="Daily Tip for Your Customers">
+                                <span class="video-idea-icon">💡</span>
+                                <span class="video-idea-label">Daily Tip</span>
+                            </button>
+                            <button class="video-idea-btn" data-video-prompt="Create a short announcement video for a [business type] business about [update/announcement]. Tone: warm and informative. Include a friendly greeting, the update details, and any important information customers need to know." title="Business Update / Announcement">
+                                <span class="video-idea-icon">📢</span>
+                                <span class="video-idea-label">Update</span>
+                            </button>
+                            <button class="video-idea-btn" data-video-prompt="Create a 20-30 second introduction video for the owner or team of a [business type] business. Tone: friendly and personable. Include who they are, what they do, and why they care about their customers." title="Meet the Owner / Team Intro">
+                                <span class="video-idea-icon">👋</span>
+                                <span class="video-idea-label">Meet Team</span>
+                            </button>
+                            <button class="video-idea-btn" data-video-prompt="Create a video answering the customer question: [insert question]. Structure: introduce the question, give a clear answer, and include one helpful tip. Keep it concise and valuable." title="Customer Q&A / FAQ Answer">
+                                <span class="video-idea-icon">❓</span>
+                                <span class="video-idea-label">Q&A</span>
+                            </button>
+                            <button class="video-idea-btn" data-video-prompt="Create a short promotional video explaining the current offer for a [business type] business: [offer details]. Tone: upbeat but trustworthy. Include what the offer is, the benefit to customers, and how to redeem it." title="Promotion / Special Offer">
+                                <span class="video-idea-icon">🎁</span>
+                                <span class="video-idea-label">Promo</span>
+                            </button>
+                            <button class="video-idea-btn" data-video-prompt="Create a simple explainer video describing the service: [service name] for a [business type] business. Explain what it is, who it's for, and why it matters to customers." title="What We Do / Services Explainer">
+                                <span class="video-idea-icon">📋</span>
+                                <span class="video-idea-label">Services</span>
+                            </button>
+                        </div>
+
+                        <!-- Right Floating Video Ideas -->
+                        <div class="video-ideas-floating video-ideas-right">
+                            <button class="video-idea-btn" data-video-prompt="Create a 20-30 second before/after results video for a [business type] business. Use a before/after structure: describe the problem, what was done to solve it, and the positive outcome achieved." title="Before & After / Results Story">
+                                <span class="video-idea-icon">✨</span>
+                                <span class="video-idea-label">Before/After</span>
+                            </button>
+                            <button class="video-idea-btn" data-video-prompt="Create a testimonial-style video sharing the experience of a customer at a [business type] business. Tone: authentic and positive. Include their challenge, their experience, and the result." title="Customer Testimonial Story">
+                                <span class="video-idea-icon">💬</span>
+                                <span class="video-idea-label">Testimonial</span>
+                            </button>
+                            <button class="video-idea-btn" data-video-prompt="Create a brief tutorial video teaching customers how to: [insert topic] related to a [business type] business. Use a three-step structure. Keep it simple, practical, and actionable." title="Quick How-To Tutorial">
+                                <span class="video-idea-icon">📚</span>
+                                <span class="video-idea-label">Tutorial</span>
+                            </button>
+                            <button class="video-idea-btn" data-video-prompt="Create a friendly community thank you video from a [business type] business. Express appreciation for customer support, share positivity, and strengthen community connection. Perfect for holidays, milestones, or just saying thanks." title="Community Message / Thank You">
+                                <span class="video-idea-icon">🙏</span>
+                                <span class="video-idea-label">Thank You</span>
+                            </button>
+                            <button class="video-idea-btn" data-video-prompt="Create a behind-the-scenes style video explaining something happening today at a [business type] business: [what's happening]. Tone: casual and friendly. Show the process or work that customers don't usually see." title="Behind the Scenes">
+                                <span class="video-idea-icon">🎬</span>
+                                <span class="video-idea-label">BTS</span>
+                            </button>
+                            <button class="video-idea-btn" data-video-prompt="Create a 20-30 second motivational video connected to the values of a [business type] business: [values/message]. Tone: uplifting, positive, and brand-aligned. Inspire and encourage your audience." title="Daily Motivation or Brand Values Message">
+                                <span class="video-idea-icon">🌟</span>
+                                <span class="video-idea-label">Motivation</span>
+                            </button>
+                        </div>
+
+                        <!-- Center Chat Content -->
+                        <div class="chat-center">
+                            <!-- Chat Header -->
+                            <div class="chat-header" id="chatHeader">
+                                <div class="header-content">
+                                    <h1 class="header-title">How can I help today?</h1>
+                                    <div class="header-underline"></div>
+                                </div>
+                                <p class="header-subtitle">Type a question or use quick actions below</p>
+                            </div>
+
+                            <!-- Chat messages container -->
+                            <div class="chat-messages-container" id="chatMessagesContainer" style="display: none;">
+                                <div class="chat-messages-scroll" id="chatMessages">
+                                    <div class="message bot">
+                                        <div class="message-avatar">
+                                            <span class="avatar-text">AI</span>
+                                        </div>
+                                        <div class="message-content markdown-body">
+                                            Hi there! I'm your NXAI Assistant. I can help you with invoicing, content creation, scheduling, CRM tasks, and much more. What would you like to do today?
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Chat Input Container -->
+                            <div class="chat-input-container glass-card">
+                                    <!-- Typing indicator -->
+                                    <div class="typing-indicator-container" id="typingIndicator" style="display: none;">
+                                        <div class="typing-avatar">
+                                            <span class="typing-avatar-text">AI</span>
+                                        </div>
+                                        <div class="typing-content">
+                                            <span>Thinking</span>
+                                            <div class="typing-dots">
+                                                <span class="dot"></span>
+                                                <span class="dot"></span>
+                                                <span class="dot"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="input-wrapper">
+                                        <textarea
+                                            id="chatInput"
+                                            placeholder="Ask me anything about your business..."
+                                            rows="1"
+                                            autocomplete="off"
+                                        ></textarea>
+                                    </div>
+
+                                    <!-- Attachments display -->
+                                    <div class="attachments-container" id="attachmentsContainer"></div>
+
+                                    <!-- Voice visualizer (shown only when recording) -->
+                                    <div class="voice-visualizer-container" id="voiceVisualizerContainer" style="display: none;">
+                                        <span class="voice-timer" id="voiceTimer">00:00</span>
+                                        <div class="voice-visualizer" id="voiceVisualizer">
+                                            <!-- 48 bars will be generated by JavaScript -->
+                                        </div>
+                                        <p class="voice-status" id="voiceStatus">Listening...</p>
+                                    </div>
+
+                                    <div class="input-actions">
+                                        <button class="voice-btn" id="voiceButton" type="button" title="Voice input">
+                                            <svg class="voice-mic-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                                <line x1="12" y1="19" x2="12" y2="23"></line>
+                                                <line x1="8" y1="23" x2="16" y2="23"></line>
+                                            </svg>
+                                            <div class="voice-recording-square" style="display: none;"></div>
+                                        </button>
+                                        <button class="send-btn" id="sendButton" disabled>
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                            </svg>
+                                            <span>Send</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                            <!-- Quick action suggestions carousel -->
+                                <div class="suggestions-wrapper">
+                                    <button class="carousel-arrow carousel-arrow-left" id="carouselLeft" aria-label="Scroll left">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="15 18 9 12 15 6"></polyline>
+                                        </svg>
+                                    </button>
+                                    <div class="suggestions-carousel" id="suggestionsCarousel">
+                                        <!-- Invoicing & Payments -->
+                                        <button class="suggestion-btn" data-suggestion="Create and send an invoice to [contact name] for $[amount] for [description of services/products]" data-category="payments">Create Invoice</button>
+
+                                        <!-- Social Media & Content -->
+                                        <button class="suggestion-btn" data-suggestion="Create a Facebook post about [topic/theme] with the message: [post content] and schedule it for [date/time]" data-category="social">Facebook Post</button>
+                                        <button class="suggestion-btn" data-suggestion="Create an Instagram post with the caption: [caption text], hashtags [relevant hashtags], and schedule for [date/time]" data-category="social">Instagram Post</button>
+                                        <button class="suggestion-btn" data-suggestion="Create a LinkedIn post about [professional topic] with the content: [post text] targeting [audience type]" data-category="social">LinkedIn Post</button>
+                                        <button class="suggestion-btn" data-suggestion="Generate an AI video about [topic] with the script: [video script/description] in [style/format]" data-category="social">AI Video</button>
+                                        <button class="suggestion-btn" data-suggestion="Get all social media accounts connected to my NXAI account and show their connection status" data-category="social">Social Accounts</button>
+                                        <button class="suggestion-btn" data-suggestion="Get all social media posts published in the last [time period] across [specific platforms or all platforms]" data-category="social">All Posts</button>
+                                        <button class="suggestion-btn" data-suggestion="Show social media statistics for [specific account/all accounts] for the period [date range] including engagement metrics" data-category="social">Social Stats</button>
+
+                                        <!-- Blog Management -->
+                                        <button class="suggestion-btn" data-suggestion="Create a new blog post titled '[blog title]' about [topic] with content: [main points/outline] and publish to [blog name]" data-category="blog">New Blog Post</button>
+                                        <button class="suggestion-btn" data-suggestion="Get all blogs in my NXAI account and show their names, URLs, and status" data-category="blog">All Blogs</button>
+                                        <button class="suggestion-btn" data-suggestion="Get all blog posts from [specific blog/all blogs] published between [start date] and [end date]" data-category="blog">Blog Articles</button>
+                                        <button class="suggestion-btn" data-suggestion="Get all blog authors who have access to [specific blog/all blogs] and their permission levels" data-category="blog">Blog Authors</button>
+
+                                        <!-- Calendars & Appointments -->
+                                        <button class="suggestion-btn" data-suggestion="Schedule an appointment with [contact name] for [service/meeting type] on [date] at [time] for [duration]" data-category="calendar">Schedule Meeting</button>
+                                        <button class="suggestion-btn" data-suggestion="Get all calendars in my account and show their names, availability settings, and booking links" data-category="calendar">All Calendars</button>
+                                        <button class="suggestion-btn" data-suggestion="Get available time slots for [calendar name] between [start date] and [end date] for appointments lasting [duration]" data-category="calendar">Free Slots</button>
+                                        <button class="suggestion-btn" data-suggestion="Get all calendar groups and show which calendars are included in each group" data-category="calendar">Calendar Groups</button>
+                                        <button class="suggestion-btn" data-suggestion="Get all upcoming events for [user/contact name] scheduled between [start date] and [end date]" data-category="calendar">User Events</button>
+                                        <button class="suggestion-btn" data-suggestion="Create an appointment for [contact name] on [calendar name] at [date and time] for [service/meeting type] lasting [duration]" data-category="calendar">New Appointment</button>
+                                        <button class="suggestion-btn" data-suggestion="Block calendar time on [calendar name] from [start date/time] to [end date/time] with reason: [reason]" data-category="calendar">Block Time</button>
+
+                                        <!-- Contacts & CRM -->
+                                        <button class="suggestion-btn" data-suggestion="Add a new contact named [first name] [last name] with email [email], phone [phone number], and assign to [tag/workflow]" data-category="contacts">Add Contact</button>
+                                        <button class="suggestion-btn" data-suggestion="Get all contacts and users in my account, filtered by [tag/status/date added] and show their contact details" data-category="contacts">All Users</button>
+                                        <button class="suggestion-btn" data-suggestion="Find duplicate contacts in my database based on [email/phone/name] and show potential matches for cleanup" data-category="contacts">Find Duplicates</button>
+                                        <button class="suggestion-btn" data-suggestion="Get all notes and activity history for contact [contact name/ID] from [date range/all time]" data-category="contacts">Contact Notes</button>
+
+                                        <!-- Tasks & Workflows -->
+                                        <button class="suggestion-btn" data-suggestion="Get all tasks assigned to [team member/all users] with status [pending/completed/all] for [date range]" data-category="tasks">All Tasks</button>
+                                        <button class="suggestion-btn" data-suggestion="Create a new task titled '[task title]' for [contact/project] assigned to [team member] due on [date] with priority [high/medium/low]" data-category="tasks">New Task</button>
+                                        <button class="suggestion-btn" data-suggestion="Update task [task ID/title] to change status to [new status], assign to [team member], and update due date to [new date]" data-category="tasks">Update Task</button>
+                                        <button class="suggestion-btn" data-suggestion="Get all active workflows in my account and show their trigger conditions, actions, and enrollment numbers" data-category="workflows">All Workflows</button>
+                                        <button class="suggestion-btn" data-suggestion="Add contact [contact name/ID] to workflow [workflow name] starting at [step number/beginning]" data-category="workflows">Add to Workflow</button>
+                                        <button class="suggestion-btn" data-suggestion="Remove contact [contact name/ID] from workflow [workflow name] and stop all pending actions" data-category="workflows">Remove from Workflow</button>
+
+                                        <!-- Documents & Media -->
+                                        <button class="suggestion-btn" data-suggestion="List all documents in folder [folder name/root] of type [PDF/all types] uploaded after [date]" data-category="documents">All Documents</button>
+                                        <button class="suggestion-btn" data-suggestion="Send document [document name] to contact [contact name] via [email/SMS] with message: [custom message]" data-category="documents">Send Document</button>
+                                        <button class="suggestion-btn" data-suggestion="Get all email templates in category [category name/all categories] and show their names and subject lines" data-category="documents">Email Templates</button>
+                                        <button class="suggestion-btn" data-suggestion="List all media files of type [images/videos/all] in folder [folder name] uploaded between [start date] and [end date]" data-category="documents">Media Files</button>
+                                        <button class="suggestion-btn" data-suggestion="Upload file [file name] to folder [folder path] with description: [file description] and tags [relevant tags]" data-category="documents">Upload File</button>
+                                        <button class="suggestion-btn" data-suggestion="Create a new folder named '[folder name]' in location [parent folder/root] for organizing [type of content]" data-category="documents">New Folder</button>
+
+                                        <!-- Surveys & Forms -->
+                                        <button class="suggestion-btn" data-suggestion="Get all surveys and forms in my account, filtered by [status/date created], and show their response counts" data-category="surveys">All Surveys</button>
+                                        <button class="suggestion-btn" data-suggestion="Get all submissions for survey [survey name] received between [start date] and [end date] with response details" data-category="surveys">Survey Responses</button>
+                                    </div>
+                                    <button class="carousel-arrow carousel-arrow-right" id="carouselRight" aria-label="Scroll right">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="9 18 15 12 9 6"></polyline>
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <!-- Mobile Video Ideas (shown only on smaller screens) -->
+                                <div class="mobile-video-ideas">
+                                    <div class="mobile-video-ideas-wrapper">
+                                        <div class="mobile-video-ideas-scroll" id="mobileVideoIdeasScroll">
+                                            <button class="mobile-video-idea-btn" data-video-prompt="Create a 20-30 second video sharing one useful tip for customers of a [business type] business. The tip must be practical, simple, and relevant to everyday customer needs. Make it engaging and actionable.">
+                                                <span class="video-idea-icon">💡</span>
+                                                <span class="video-idea-label">Daily Tip</span>
+                                            </button>
+                                            <button class="mobile-video-idea-btn" data-video-prompt="Create a short announcement video for a [business type] business about [update/announcement]. Tone: warm and informative. Include a friendly greeting, the update details, and any important information customers need to know.">
+                                                <span class="video-idea-icon">📢</span>
+                                                <span class="video-idea-label">Update</span>
+                                            </button>
+                                            <button class="mobile-video-idea-btn" data-video-prompt="Create a 20-30 second introduction video for the owner or team of a [business type] business. Tone: friendly and personable. Include who they are, what they do, and why they care about their customers.">
+                                                <span class="video-idea-icon">👋</span>
+                                                <span class="video-idea-label">Meet Team</span>
+                                            </button>
+                                            <button class="mobile-video-idea-btn" data-video-prompt="Create a video answering the customer question: [insert question]. Structure: introduce the question, give a clear answer, and include one helpful tip. Keep it concise and valuable.">
+                                                <span class="video-idea-icon">❓</span>
+                                                <span class="video-idea-label">Q&A</span>
+                                            </button>
+                                            <button class="mobile-video-idea-btn" data-video-prompt="Create a short promotional video explaining the current offer for a [business type] business: [offer details]. Tone: upbeat but trustworthy. Include what the offer is, the benefit to customers, and how to redeem it.">
+                                                <span class="video-idea-icon">🎁</span>
+                                                <span class="video-idea-label">Promo</span>
+                                            </button>
+                                            <button class="mobile-video-idea-btn" data-video-prompt="Create a 30-second FAQ video answering the most common question customers ask at a [business type] business: [question]. Tone: helpful and clear.">
+                                                <span class="video-idea-icon">💭</span>
+                                                <span class="video-idea-label">FAQ</span>
+                                            </button>
+                                            <button class="mobile-video-idea-btn" data-video-prompt="Create a 20-30 second before/after results video for a [business type] business. Use a before/after structure: describe the problem, what was done to solve it, and the positive outcome achieved.">
+                                                <span class="video-idea-icon">✨</span>
+                                                <span class="video-idea-label">Before/After</span>
+                                            </button>
+                                            <button class="mobile-video-idea-btn" data-video-prompt="Create a testimonial-style video sharing the experience of a customer at a [business type] business. Tone: authentic and positive. Include their challenge, their experience, and the result.">
+                                                <span class="video-idea-icon">💬</span>
+                                                <span class="video-idea-label">Testimonial</span>
+                                            </button>
+                                            <button class="mobile-video-idea-btn" data-video-prompt="Create a brief tutorial video teaching customers how to: [insert topic] related to a [business type] business. Use a three-step structure. Keep it simple, practical, and actionable.">
+                                                <span class="video-idea-icon">📚</span>
+                                                <span class="video-idea-label">Tutorial</span>
+                                            </button>
+                                            <button class="mobile-video-idea-btn" data-video-prompt="Create a friendly community thank you video from a [business type] business. Express appreciation for customer support, share positivity, and strengthen community connection. Perfect for holidays, milestones, or just saying thanks.">
+                                                <span class="video-idea-icon">🙏</span>
+                                                <span class="video-idea-label">Thank You</span>
+                                            </button>
+                                            <button class="mobile-video-idea-btn" data-video-prompt="Create a behind-the-scenes style video explaining something happening today at a [business type] business: [what's happening]. Tone: casual and friendly. Show the process or work that customers don't usually see.">
+                                                <span class="video-idea-icon">🎬</span>
+                                                <span class="video-idea-label">BTS</span>
+                                            </button>
+                                            <button class="mobile-video-idea-btn" data-video-prompt="Create a short product or service spotlight video for a [business type] business showcasing [product/service name]. Include what it is, who it's for, and the key benefit.">
+                                                <span class="video-idea-icon">⭐</span>
+                                                <span class="video-idea-label">Spotlight</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Upcoming Appointments Section -->
+                                <div class="appointments-section">
+                                    <div class="section-header">
+                                        <h2 class="section-title">Upcoming Appointments</h2>
+                                        <div class="section-actions">
+                                            <div class="user-selector">
+                                                <select id="userDropdown" class="user-dropdown">
+                                                    <option value="">Select a user...</option>
+                                                </select>
+                                            </div>
+                                            <button class="refresh-btn" id="appointmentsRefresh" title="Refresh appointments" style="display: none;">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <polyline points="23 4 23 10 17 10"></polyline>
+                                                    <polyline points="1 20 1 14 7 14"></polyline>
+                                                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="carousel-wrapper">
+                                        <button class="carousel-arrow carousel-arrow-left" id="appointmentsLeft" aria-label="Scroll left" style="display: none;">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="15 18 9 12 15 6"></polyline>
+                                            </svg>
+                                        </button>
+                                        <div class="carousel-container" id="appointmentsContainer">
+                                            <div class="carousel-placeholder">
+                                                Select a user to view their upcoming appointments
+                                            </div>
+                                        </div>
+                                        <button class="carousel-arrow carousel-arrow-right" id="appointmentsRight" aria-label="Scroll right" style="display: none;">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="9 18 15 12 9 6"></polyline>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== THUMBNAILS MODULE ========== -->
+                <div class="module-panel" id="thumbnailsModule" data-module="thumbnails">
+                    <div class="module-content thumbnails-module">
+                        <div class="module-header">
+                            <div class="header-left">
+                                <h2 class="module-title">Thumbnail Generator</h2>
+                                <p class="module-subtitle">High-resolution assets generated from your content context.</p>
+                            </div>
+                            <div class="header-right">
+                                <div class="count-badge" id="thumbnailsCount">
+                                    TOTAL: 0
+                                </div>
+                                <button class="refresh-btn" id="thumbnailsRefresh" title="Refresh thumbnails">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="23 4 23 10 17 10"></polyline>
+                                        <polyline points="1 20 1 14 7 14"></polyline>
+                                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="thumbnails-grid" id="thumbnailsContainer">
+                            <div class="module-placeholder">Loading thumbnails...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== MEDIA MODULE ========== -->
+                <div class="module-panel" id="mediaModule" data-module="media">
+                    <div class="module-content media-module">
+                        <div class="module-header">
+                            <div class="header-left">
+                                <h2 class="module-title">Media Studio</h2>
+                                <p class="module-subtitle">Scheduled & Draft posts across all platforms.</p>
+                            </div>
+                            <div class="header-right">
+                                <div class="filter-tabs">
+                                    <button class="filter-tab active" data-filter="all">All</button>
+                                    <button class="filter-tab" data-filter="video">Video</button>
+                                    <button class="filter-tab" data-filter="image">Image</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="usage-bars-row">
+                            <!-- Audio Usage (ElevenLabs) -->
+                            <div class="usage-bar-wrapper" id="audioUsageWrapper">
+                                <div class="usage-bar-label">Audio</div>
+                                <div class="usage-bar">
+                                    <div class="usage-bar-fill" id="audioUsageFill"></div>
+                                    <div class="usage-bar-text" id="audioUsageText">--/--</div>
+                                    <div class="usage-bar-overlay" id="audioUsageOverlay" style="display: none;">$0.30 per minute</div>
+                                </div>
+                            </div>
+
+                            <!-- Video Usage (HeyGen) -->
+                            <div class="usage-bar-wrapper" id="videoUsageWrapper">
+                                <div class="usage-bar-label">Video</div>
+                                <div class="usage-bar">
+                                    <div class="usage-bar-fill" id="videoUsageFill"></div>
+                                    <div class="usage-bar-text" id="videoUsageText">--/1660</div>
+                                </div>
+                            </div>
+
+                            <button class="refresh-btn" id="socialMediaRefresh" title="Refresh posts and usage">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="23 4 23 10 17 10"></polyline>
+                                    <polyline points="1 20 1 14 7 14"></polyline>
+                                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="media-grid" id="socialMediaContainer">
+                            <div class="module-placeholder">Loading social media posts...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== BLOGS MODULE ========== -->
+                <div class="module-panel" id="blogsModule" data-module="blogs">
+                    <div class="module-content blogs-module">
+                        <div class="module-header">
+                            <div class="header-left">
+                                <h2 class="module-title">Blog Studio</h2>
+                                <p class="module-subtitle">Manage and deploy long-form content.</p>
+                            </div>
+                            <div class="header-right">
+                                <div class="blog-selector">
+                                    <select id="blogDropdown" class="blog-dropdown">
+                                        <option value="">Select a blog...</option>
+                                    </select>
+                                </div>
+                                <button class="refresh-btn" id="blogRefresh" title="Refresh blogs" style="display: none;">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="23 4 23 10 17 10"></polyline>
+                                        <polyline points="1 20 1 14 7 14"></polyline>
+                                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="blogs-table-container">
+                            <div class="blogs-table" id="blogContainer">
+                                <div class="module-placeholder">Select a blog to view posts</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== ANALYTICS MODULE ========== -->
+                <div class="module-panel" id="analyticsModule" data-module="analytics">
+                    <div class="module-content analytics-module">
+                        <div class="module-header">
+                            <div class="header-left">
+                                <h2 class="module-title">Social Media Analytics</h2>
+                                <p class="module-subtitle">Track engagement metrics across all your social platforms.</p>
+                            </div>
+                            <div class="header-right">
+                                <button class="refresh-btn" id="analyticsRefresh" title="Refresh analytics">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="23 4 23 10 17 10"></polyline>
+                                        <polyline points="1 20 1 14 7 14"></polyline>
+                                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Analytics Stats Grid -->
+                        <div class="analytics-loading" id="analyticsLoading">
+                            <div class="analytics-spinner"></div>
+                            <p>Loading analytics data...</p>
+                        </div>
+
+                        <div class="analytics-content" id="analyticsContent" style="display: none;">
+                            <!-- Platform Cards -->
+                            <div class="analytics-platforms" id="analyticsPlatforms">
+                                <!-- Platform cards will be dynamically populated -->
+                            </div>
+
+                            <!-- Detailed Stats -->
+                            <div class="analytics-details" id="analyticsDetails">
+                                <!-- Detailed stats will be dynamically populated -->
+                            </div>
+                        </div>
+
+                        <div class="analytics-error" id="analyticsError" style="display: none;">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            <p class="error-message">Unable to load analytics data</p>
+                            <button class="retry-btn" id="analyticsRetry">Try Again</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Marked.js for Markdown parsing with proper fallback -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js" crossorigin="anonymous" onerror="loadMarkedFallback()"></script>
+    <script>
+        // Only load fallback if primary CDN actually fails
+        function loadMarkedFallback() {
+            console.warn('Primary marked CDN failed, loading from fallback...');
+            var script = document.createElement('script');
+            script.src = 'https://unpkg.com/marked@11.1.1/marked.min.js';
+            script.onerror = function() {
+                console.error('Fallback CDN also failed. Markdown rendering will not work.');
+            };
+            document.head.appendChild(script);
+        }
+    </script>
+
+    <!-- Configuration (auto-generated from .env) -->
+    <script src="js/config.js?v=6"></script>
+
+    <!-- Main application -->
+    <script src="js/app.js?v=6"></script>
+</body>
+</html>
